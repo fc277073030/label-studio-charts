@@ -88,20 +88,55 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 20Gi
-  storageClass:
+  storageClass: ""
 
-env:
-  - name: DJANGO_DB
-    value: default
-  - name: LABEL_STUDIO_COPY_STATIC_DATA
-    value: "true"
-  - name: POSTGRE_HOST
-    value: acid-postgres
-  - name: POSTGRE_NAME
-    value: postgres
-  - name: POSTGRE_PASSWORD
-    value:
-  - name: POSTGRE_PORT
-    value: "5432"
-  - name: POSTGRE_USER
-    value: postgres
+copyStaticData: "true"
+
+postgresql:
+  # Enable to deploy the PostgreSQL chart
+  enabled: true
+  postgresqlUsername: "postgres"
+  postgresqlPassword: "mMHz0AbLYM"
+  postgresqlDatabase: "postgres"
+  existingSecret: ""
+  # Specify the TCP port that PostgreSQL should use
+  port: "5432"
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 20Gi
+    storageClass:
+  securityContext:
+    # For standard Kubernetes deployment, set enabled=true
+    # If using OpenShift, enabled=false for restricted SCC and enabled=true for anyuid/nonroot SCC
+    enabled: true
+    # fsGroup specification below are not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    # postgresql dockerfile sets user as 1001
+    fsGroup: 1001
+  containerSecurityContext:
+    # For standard Kubernetes deployment, set enabled=true
+    # If using OpenShift, enabled=false for restricted SCC and enabled=true for anyuid/nonroot SCC
+    enabled: true
+    # runAsUser specification below are not applied if enabled=false. enabled=false is the required setting for OpenShift "restricted SCC" to work successfully.
+    # postgresql dockerfile sets user as 1001
+    runAsUser: 1001
+  volumePermissions:
+    # For standard Kubernetes deployment, set enabled=false
+    # For OpenShift, set enabled=true and ensure to set volumepermissions.securitycontext.runAsUser below.
+    enabled: false
+    # if using restricted SCC set runAsUser: "auto" and if running under anyuid/nonroot SCC - runAsUser needs to match runAsUser above
+    securityContext:
+      runAsUser: 0
+  shmVolume:
+    chmod:
+      enabled: false
+  serviceAccount:
+    ## If enabled = true, and name is not set, postgreSQL will create a serviceAccount
+    enabled: false
