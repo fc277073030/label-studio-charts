@@ -38,18 +38,10 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
-            - name: DJANGO_DB
-              value: {{ .Values.postgresql.postgresqlDatabase}}
-            - name: POSTGRE_HOST
-              value: {{ .Release.Name }}-postgresql
-            - name: POSTGRE_USER
-              value: {{ .Values.postgresql.postgresqlUsername }}
-            - name: POSTGRE_PASSWORD
-              value: {{ .Values.postgresql.postgresqlPassword }}
-            - name: POSTGRE_PORT
-              value: {{ toYaml .Values.postgresql.port }}
-            - name: LABEL_STUDIO_COPY_STATIC_DATA
-              value: {{ toYaml .Values.copyStaticData }}
+            {{- range  $k, $v := .Values.env }}
+            - name: {{ $k | quote }}
+              value: {{ $v | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /
@@ -62,12 +54,12 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{ if .Values.persistence.enabled }}
-            - name: {{ .Chart.Name }}-pvc
-              mountPath: /label-studio/data
+            - name: data-{{ .Chart.Name }}
+              mountPath: {{ .Values.persistence.mountPath }}
       volumes:
-        - name: {{ .Chart.Name }}-pvc
+        - name: data-{{ .Chart.Name }}
           persistentVolumeClaim:
-            claimName: {{ .Chart.Name }}-pvc
+            claimName: data-{{ .Chart.Name }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

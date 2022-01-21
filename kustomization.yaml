@@ -1,0 +1,13 @@
+secretGenerator:
+  - name: db-secret
+    literals:
+      - DJANGO_DB=default
+      - LABEL_STUDIO_COPY_STATIC_DATA=true
+      - POSTGRE_HOST=postgresql.default.svc.cluster.local
+      - POSTGRE_NAME=postgres
+      - POSTGRE_PASSWORD=ofUkkIeLhD
+      - POSTGRE_PORT=5432
+      - POSTGRE_USER=postgres
+
+generatorOptions:
+  disableNameSuffixHash: true

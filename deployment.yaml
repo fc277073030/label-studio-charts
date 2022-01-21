@@ -22,23 +22,43 @@ spec:
             - name: LABEL_STUDIO_COPY_STATIC_DATA
               value: "true"
             - name: POSTGRE_HOST
-              value: test-postgresql
+              value: postgresql.default.svc.cluster.local
             - name: POSTGRE_NAME
               value: postgres
             - name: POSTGRE_PASSWORD
-              value: Y7aK6BnsGR
+              value: ofUkkIeLhD
             - name: POSTGRE_PORT
               value: "5432"
             - name: POSTGRE_USER
               value: postgres
           ports:
             - containerPort: 8080
-      #     volumeMounts:
-      #       - mountPath: /label-studio/data
-      #         name: label-studio-claim
-      #     ports:
-      #       - containerPort: 8080
-      # volumes:
-      #   - name: label-studio-claim
-      #     persistentVolumeClaim:
-      #       claimName: label-studio-claim
+          volumeMounts:
+            - mountPath: /label-studio/data
+              name: label-studio-claim
+      volumes:
+        - name: label-studio-claim
+          persistentVolumeClaim:
+            claimName: label-studio-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: label-studio-service
+spec:
+  selector:
+    app: label-studio-deploy
+  ports:
+    - port: 8080
+      targetPort: 8080
+#---
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: label-studio-claim
+#spec:
+#  accessModes:
+#    - ReadWriteMany
+#  resources:
+#    requests:
+#      storage: 10Gi
